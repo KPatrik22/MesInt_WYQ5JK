@@ -3,27 +3,33 @@ import time
 import matplotlib.pyplot as plt
 
 def distance(point1, point2):
+
     distance = 0
     for x1, x2 in zip(point1, point2):
         difference = x2 - x1
         absolute_difference = abs(difference)
         distance += absolute_difference
+
     return distance
     
 def transform(loc):
+
     _dict = {}
     for i in range(len(loc)):
         for j in range(len(loc)):
             _dict[(i, j)] = distance(loc[i], loc[j])
+
     return _dict
     
 def object_function(dict, s):
+
     dist = 0
     prev = s[0]
     for i in s:
         dist += dict[(prev, i)]
         prev = i
     dist += dict[(s[-1], s[0])]
+
     return dist
     
 def tabu_tsp(s, object_f, iterations, neighbors):
@@ -178,6 +184,7 @@ def output(cities, vehicles, loc, s_improved, distances, fulldistance):
     f.write("\nCoordinates: ")
     f.write(str(loc))
     f.write("\n")
+
     for i in range(vehicles):
         f.write("\nRoute of vehicle No. ")
         f.write(str(i+1))
@@ -193,22 +200,47 @@ def output(cities, vehicles, loc, s_improved, distances, fulldistance):
     f.write("\n-----\n")
     f.close()
 
-def plot(loc, s_improved):
-    plt.plot(loc[0][0], loc[0][1], 'hotpink')
+def plot_tsp(loc, s_improved):
+
+    plt.scatter(loc[0][0], loc[0][1], c='magenta', s=150)
     plt.annotate('Depot', (loc[0][0], loc[0][1]))
+
     for i in range(1, len(loc)):
-        plt.plot(loc[i][0], loc[i][1], 'black')
+        plt.scatter(loc[i][0], loc[i][1], c='darkgray', s=50)
         plt.annotate(i, (loc[i][0], loc[i][1]))
-    colors = ['r', 'g', 'b', 'y', 'c', 'm', 'k']
+
+    for k in range(len(s_improved)):
+        if k == len(s_improved) - 1:
+            plt.plot([loc[s_improved[k]][0], loc[s_improved[0]][0]],
+                     [loc[s_improved[k]][1], loc[s_improved[0]][1]], c='royalblue')
+        else:
+            plt.plot([loc[s_improved[k]][0], loc[s_improved[k + 1]][0]],
+                     [loc[s_improved[k]][1], loc[s_improved[k + 1]][1]], c='royalblue')
+
+    plt.axis([0, 1000, 0, 1000])
+    plt.show()
+
+def plot_vrp(loc, s_improved):
+
+    plt.scatter(loc[0][0], loc[0][1], c='magenta', s=150)
+    plt.annotate('Depot', (loc[0][0], loc[0][1]))
+
+    for i in range(1, len(loc)):
+        plt.scatter(loc[i][0], loc[i][1], c='darkgray', s=50)
+        plt.annotate(i, (loc[i][0], loc[i][1]))
+
+    colors = ['black', 'red', 'gold', 'green', 'cyan', 'royalblue', 'darkviolet']
+
     for i in range(len(s_improved)):
+
         for k in range(len(s_improved[i])):
             if k == len(s_improved[i]) - 1:
                 plt.plot([loc[s_improved[i][k]][0], loc[s_improved[i][0]][0]],
-                          [loc[s_improved[i][k]][1], loc[s_improved[i][0]][1]], colors[i % 7])
+                         [loc[s_improved[i][k]][1], loc[s_improved[i][0]][1]], colors[i % 7])
             else:
                 plt.plot([loc[s_improved[i][k]][0], loc[s_improved[i][k + 1]][0]],
-                          [loc[s_improved[i][k]][1], loc[s_improved[i][k + 1]][1]], colors[i % 7])
-
+                         [loc[s_improved[i][k]][1], loc[s_improved[i][k + 1]][1]], colors[i % 7])
+    plt.axis([0, 1000, 0, 1000])
     plt.show()
 
 def main():
@@ -240,9 +272,6 @@ def main():
         point1 = random.randint(0, 1000)
         point2 = random.randint(0, 1000)
         loc[l] = (point1, point2)
-
-    print("depo: ", loc[0])
-    print("depo: ", loc[0][0], loc[0][1])
     
     print("\nNumber of cities: ", cities)
     print("Number of vehicles: ", vehicles)
@@ -260,6 +289,7 @@ def main():
         print(s_improved)
         print("Distance: ", object_f(s_improved))
         print("\nExecution time: ",(time.time() - start_time)," seconds\n")
+        plot_tsp(loc, s_improved)
     
     if vehicles > 1: 
         s_improved = tabu_vrp(s, object_f, iterations, neighbors, cities, vehicles)
@@ -272,7 +302,7 @@ def main():
         print("\nFull Distance: ", fulldistance)
         output(cities, vehicles, loc, s_improved, distances, fulldistance)
         print("\nExecution time: ",(time.time() - start_time)," seconds\n")
-        plot(loc, s_improved)   
+        plot_vrp(loc, s_improved)   
       
 if __name__ == '__main__':
     main()
